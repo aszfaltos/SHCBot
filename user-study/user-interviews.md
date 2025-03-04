@@ -1,8 +1,10 @@
 ## User Interface
 - What do you think a simple and usable interface would look like?
+- How do you usually use chatbots, what and how do you ask them?
+- What kind of answers do you like? Reather short and informative ones, or you like more explanitory and long answers?
 
 ## Functionality
-- What features would you like to see in the app?
+- What features would you like to see in the app other than being able to chat with it?
 
 ## Document Index
 - What information do you usually look for about the university?

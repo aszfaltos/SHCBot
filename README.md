@@ -18,7 +18,7 @@ There is a pretty extensive description of each task and the requirements on the
 
 ### Aszi
 - [ ] value-preposition.md - Sun
-- [ ] 2 questions for user-interviews.md - Tue
+- [x] 2 questions for user-interviews.md - Tue
 
 ### Patrik
 - [ ] user-stories.md - Sun
