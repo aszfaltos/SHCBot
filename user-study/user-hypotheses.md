@@ -75,3 +75,28 @@ She mostly uses her phone for everyday use and tablet for university but has a p
 
 <ins>**Quote:**</ins>   
 "I would love to meet students from around the world and still continue my studies while doing it."
+
+## Adebayo Hassan (user persona 4)
+
+<ins>**Demographics:**</ins>   
+Age: 24  
+Location: Lagos, Nigeria  
+Education: MSc student at ELTE
+
+<ins>**About:**</ins> He recently arrived in Hungary to start his studies. He's very excited about it, but there is so much new information for him and not everything is clear or available on the websites, that's why he often needs assistance from university staff. He wants to get comfortable in this new environment so he can focus on his studies and so he can have time to getting to know local students.
+
+<ins>**Goals:**</ins>
+- Get information translated from Hungarian to English
+- Stay up-to-date with university related news
+- Get to know every opportunity to ease his integration in the new environment
+
+<ins>**Frustrations:**</ins>   
+- Not everything is available in English.
+- Usually needs contact person to discuss questions.
+- Feels left out from the community.
+
+<ins>**Behaviour patterns:**</ins>   
+He usually uses his laptop for everything that is university related. Sometimes checks information on his phone.
+
+<ins>**Quote:**</ins>   
+"I'm very excited by moving to Hungary, but I am still struggling with basic information needs."
