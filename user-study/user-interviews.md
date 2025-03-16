@@ -1,3 +1,5 @@
+# Questions
+
 ## User Interface
 - What do you think a simple and usable interface would look like?
 - How do you usually use chatbots, what and how do you ask them?
@@ -18,3 +20,21 @@
 - Where you usually go for information about the university?
 - What document types (PDFs, web pages) do you prefer?
 - Do you save university documents for future reference?
+
+
+# Results of User Interviews
+These results contain the unexpected results from the interviews. These results will only contain findings which we did not initially think of.
+
+## International BSc Student
+- Saving of information is important
+- Erasmus information is the most difficult to find
+
+## MSc Student 1
+- References to human representatives would be useful
+- Providing information about financial problems and procedures is important
+- Providing information about the list of subjects is important
+
+## MSc Student 2
+- Cross-platform support would be quite useful
+- We have to be cautious with the usage of informal language
+- Support for English and possibly other languages would be beneficial
