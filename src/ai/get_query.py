@@ -1,7 +1,5 @@
 from openai import OpenAI
 
-import os
-
 def get_query(chat_history: str) -> str:
     """
     This function takes in a chat history and generates a query that can be passed to a vectorstore.
@@ -10,7 +8,7 @@ def get_query(chat_history: str) -> str:
         chat_history (String): The chat history to generate a query from.
 
     Returns:
-        String: A query that can be passed to a vectorstore.
+        String: A query that can be passed to a vectorstore. Usually a statement rather than a question.
     """
     
     system_prompt = """
@@ -25,8 +23,6 @@ def get_query(chat_history: str) -> str:
     """
 
     client = OpenAI()
-
-
 
     response = client.responses.create(
         model="gpt-4o-mini",
