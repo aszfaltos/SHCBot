@@ -20,11 +20,18 @@ of the assistant in a binary (satisfactory, not satisfactory) way. Later we
 can aggregate the collected data into a simple **Satisfaction Rate (SR)**, the
 percentage of positive responses.
 
+**SR** is a great metric of monitoring user satisfaction, however it alone 
+doesn't reflect the usefulness of our product, hence we should include the 
+**User Count (UC)** in our calculations.
+
+We can weight **UC** with **SR**, in a way estimating the number of 
+**Satisfied Users (SU)**.
+
 #### Defining the target
 
-A good target would be an **80% SR**, however for accurate assessment we would
-need a large enough sample size. It would be feasable to get 100 rated
-responses in the duration of user testing.
+A good target would be **8 SU**, with an **SR** no lower than **80%**.
+This would mean we could help a number of students with their issues,
+and most of them were satisfied with our service.
 
 
 
