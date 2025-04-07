@@ -1,26 +1,19 @@
 import os
 
 from langchain.vectorstores import FAISS
-from langchain_openai import ChatOpenAI
-from langchain.chains import create_retrieval_chain
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import DirectoryLoader
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.document import Document
 
 class VectorDB:
-    def __init__(self, directory: str, embedding_model_name: str, chunk_size: int, chunk_overlap: int, top_k: int = 5, glob: str="**/[!.]*", device: str = "cpu", recreate: bool = False):
+    def __init__(self, directory: str, embedding_model_name: str, chunks: list[Document], device: str = "cpu", recreate: bool = False):
         """
         Initialize the VectorDB class.
         Args:
             directory (str): The directory containing the documents to be indexed.
             embedding_model_name (str): The name of the embedding model to use from HuggingFaceEmbeddings.
-            chunk_size (int): The size of the chunks to split the documents into.
-            chunk_overlap (int): The overlap between chunks.
-            top_k (int): The number of top results to retrieve. Defaults to 5.
-            glob (str): The glob pattern to match files. Defaults to "**/[!.]*".
+            chunks (list[Document]): The list of document chunks to be indexed.
             device (str): The device to use for the embedding model ("cpu" or "cuda"). Defaults to "cpu".
+            recreate (bool): Whether to recreate the vector database if it already exists. Defaults to False.
         """
         # Check recreate flag
         if recreate:
@@ -49,21 +42,11 @@ class VectorDB:
             self._create_vector_db(
                 directory=directory,
                 embedding_model_name=embedding_model_name,
-                chunk_size=chunk_size,
-                chunk_overlap=chunk_overlap,
-                glob=glob,
+                chunks=chunks,
                 device=device
             )
         
-        # Create a retriever from the vectorstore
-        self.retriever = self.vectorstore.as_retriever(search_kwargs={"n_results": top_k})
-
-    def query(self, query_text: str, top_k: int) -> str:
-        #return self.vectorstore.similarity_search(query_text, k=top_k) # This returns also the metadata, we can use it later
-        # Query the vectorstore
-        query_result = self.vectorstore.similarity_search(query_text, k=top_k)
-        # Simply concat the page_content of the retrieved documents
-        return "\n".join([doc.page_content for doc in query_result])
+        return self.vectorstore
 
     def _vector_db_exists(self, directory: str) -> bool:
         """
@@ -75,23 +58,15 @@ class VectorDB:
         """
         return os.path.exists(directory) and os.path.isdir(directory)
     
-    def _create_vector_db(self, directory: str, embedding_model_name: str, chunk_size: int, chunk_overlap: int, glob: str, device: str = "cpu"):
+    def _create_vector_db(self, directory: str, embedding_model_name: str, chunks: list[Document], device: str = "cpu"):
         """
         Create a vector database from the given directory.
         Args:
             directory (str): The directory containing the documents to be indexed.
             embedding_model (str): The name of the embedding model to use from HuggingFaceEmbeddings.
-            chunk_size (int): The size of the chunks to split the documents into.
-            chunk_overlap (int): The overlap between chunks.
-            glob (str): The glob pattern to match files.
+            chunks (list[Document]): The list of document chunks to be indexed.
             device (str): The device to use for the embedding model ("cpu" or "cuda"). Defaults to "cpu".
         """
-        loader = DirectoryLoader(directory=directory, glob=glob)
-        documents = loader.load()
-
-        # Split documents into chunks
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        chunks = text_splitter.split_documents(documents)
 
         # Create embeddings using HuggingFaceEmbeddings
         embedding_model = HuggingFaceEmbeddings(model_name=embedding_model_name, model_kwargs={"device": device})
@@ -122,3 +97,28 @@ class VectorDB:
             embeddings=embedding_model,
             allow_dangerous_deserialization=True,
         )
+
+    def query(self, query_text: str, top_k: int) -> str:
+        """
+        Simple query function to search the vectorstore.
+        Args:
+            query_text (str): The query text to search for in the vectorstore.
+            top_k (int): The number of top results to return.
+        Returns:
+            str: The concatenated page content of the retrieved documents.
+        """
+        # Query the vectorstore
+        query_result = self.vectorstore.similarity_search(query_text, k=top_k)
+        # Simply concat the page_content of the retrieved documents
+        return "\n".join([doc.page_content for doc in query_result])
+    
+    def query_docs(self, query_text: str, top_k: int) -> str:
+        """
+        Query the vectorstore and return the raw documents.
+        Args:
+            query_text (str): The query text to search for in the vectorstore.
+            top_k (int): The number of top results to return.
+        Returns:
+            str: The concatenated page content of the retrieved documents.
+        """
+        return self.vectorstore.similarity_search(query_text, k=top_k)

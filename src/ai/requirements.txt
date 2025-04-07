@@ -6,3 +6,5 @@ faiss-cpu
 langchain-faiss
 langchain-openai
 langchain-huggingface
+nltk
+rank_bm25
