@@ -11,11 +11,12 @@ from keyword_search import KeywordSearchRetriever
 from reranker import Reranker
 
 class Retriever:
-    def __init__(self, vector_db_directory: str, embedding_model_name: str, reranker_model_name: str, chunk_size: int, chunk_overlap: int, dense_top_k: int = 5, sparse_top_k: int = 5, reranker_top_k: int = 5, glob: str="**/[!.]*", device: str = "cpu", recreate_vector_db: bool = False):
+    def __init__(self, vector_db_directory: str, documents_dir: str, embedding_model_name: str, reranker_model_name: str, chunk_size: int, chunk_overlap: int, dense_top_k: int = 5, sparse_top_k: int = 5, reranker_top_k: int = 5, glob: str="**/[!.]*", device: str = "cpu", recreate_vector_db: bool = False):
         """
         Initialize the Retriever class.
         Args:
-            vector_db_directory (str): The directory containing the vector database.
+            vector_db_directory (str): The directory which would contain the vector database.
+            documents_dir (str): The directory containing the documents to be indexed.
             embedding_model_name (str): The name of the embedding model to use from HuggingFaceEmbeddings.
             reranker_model_name (str): The name of the reranker model to use from HuggingFaceCrossEncoder.
             chunk_size (int): The size of the chunks to split the documents into.
@@ -27,7 +28,7 @@ class Retriever:
             device (str): The device to use for the embedding model ("cpu" or "cuda"). Defaults to "cpu".
         """
         # Load documents
-        chunks = load_documents(vector_db_directory, chunk_size, chunk_overlap, glob)
+        chunks = load_documents(documents_dir, chunk_size, chunk_overlap, glob)
 
         # Init VectorDB
         self.vectorstore = VectorDB(
