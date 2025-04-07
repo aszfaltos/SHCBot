@@ -1,3 +1,8 @@
 python-dotenv
 openai
 gradio
+faiss-cpu
+#faiss-gpu
+langchain-faiss
+langchain-openai
+langchain-huggingface
