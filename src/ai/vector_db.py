@@ -112,13 +112,13 @@ class VectorDB:
         # Simply concat the page_content of the retrieved documents
         return "\n".join([doc.page_content for doc in query_result])
     
-    def query_docs(self, query_text: str, top_k: int) -> str:
+    def query_docs(self, query_text: str, top_k: int) -> list[Document]:
         """
         Query the vectorstore and return the raw documents.
         Args:
             query_text (str): The query text to search for in the vectorstore.
             top_k (int): The number of top results to return.
         Returns:
-            str: The concatenated page content of the retrieved documents.
+            list[Document]: A list of retrieved documents.
         """
         return self.vectorstore.similarity_search(query_text, k=top_k)

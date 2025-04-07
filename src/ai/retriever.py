@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.retrievers import EnsembleRetriever
+from langchain.document import Document
 
 from document_loader import load_documents
 from vector_db import VectorDB
@@ -60,22 +61,56 @@ class Retriever:
 
     def query(self, query_text: str) -> str:
         """
-        Simple query function to search the vectorstore.
+        Hybrid search with reranking.
+        This function first retrieves documents using the ensemble retriever and then reranks them using the compression retriever.
         Args:
-            query_text (str): The query text to search for in the vectorstore.
+            query_text (str): The query text to search for.
         Returns:
             str: The concatenated page content of the retrieved documents.
         """
         retrieved_docs = self.compression_retriever.invoke(query_text)
         return "\n".join([doc.page_content for doc in retrieved_docs])
     
-    def query_docs(self, query_text: str) -> str:
+    def query_docs(self, query_text: str) -> list[Document]:
         """
-        Simple query function to search the vectorstore.
+        Hybrid search with reranking.
+        This function first retrieves documents using the ensemble retriever and then reranks them using the compression retriever.
         Args:
-            query_text (str): The query text to search for in the vectorstore.
+            query_text (str): The query text to search for.
         Returns:
-            str: The concatenated page content of the retrieved documents.
+            list[Document]: A list of retrieved documents.
         """
         retrieved_docs = self.compression_retriever.invoke(query_text)
         return retrieved_docs
+    
+    def query_without_reranker(self, query_text: str) -> list[Document]:
+        """
+        Hybrid search without reranking.
+        This function retrieves documents using the ensemble retriever.
+        Args:
+            query_text (str): The query text to search for.
+        Returns:
+            list[Document]: A list of retrieved documents.
+        """
+        return self.ensemble_retriever.invoke(query_text)
+
+    def dense_search(self, query_text: str, top_k: int) -> list[Document]:
+        """
+        Query the vectorstore and return the raw documents.
+        Args:
+            query_text (str): The query text to search for in the vectorstore.
+            top_k (int): The number of top results to return.
+        Returns:
+            list[Document]: A list of retrieved documents.
+        """
+        return self.vectorstore.similarity_search(query_text, k=top_k)
+
+    def sparse_search(self, query_text: str) -> list[Document]:
+        """
+        Query the keyword retriever and return the raw documents.
+        Args:
+            query_text (str): The query text to search for in the keyword retriever.
+        Returns:
+            list[Document]: A list of retrieved documents.
+        """
+        return self.keyword_retriever.invoke(query_text)
