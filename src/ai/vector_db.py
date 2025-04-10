@@ -1,8 +1,8 @@
 import os
 
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.document import Document
+from langchain.docstore.document import Document
 
 class VectorDB:
     def __init__(self, directory: str, embedding_model_name: str, chunks: list[Document], device: str = "cpu", recreate: bool = False):
@@ -45,8 +45,6 @@ class VectorDB:
                 chunks=chunks,
                 device=device
             )
-        
-        return self.vectorstore
 
     def _vector_db_exists(self, directory: str) -> bool:
         """
@@ -92,7 +90,7 @@ class VectorDB:
         embedding_model = HuggingFaceEmbeddings(model_name=embedding_model_name, model_kwargs={"device": device})
 
         # Load the vectorstore from the specified directory
-        self.vectorstore = FAISS.from_documents(
+        self.vectorstore = FAISS.load_local(
             folder_path=directory,
             embeddings=embedding_model,
             allow_dangerous_deserialization=True,
@@ -122,3 +120,11 @@ class VectorDB:
             list[Document]: A list of retrieved documents.
         """
         return self.vectorstore.similarity_search(query_text, k=top_k)
+    
+    def get_vectorstore(self) -> FAISS:
+        """
+        Get the vectorstore object.
+        Returns:
+            FAISS: The vectorstore object.
+        """
+        return self.vectorstore

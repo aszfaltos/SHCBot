@@ -11,7 +11,7 @@ def load_documents(directory: str, chunk_size: int, chunk_overlap: int, glob: st
     Returns:
         list: A list of document chunks.
     """
-    loader = DirectoryLoader(directory=directory, glob=glob)
+    loader = DirectoryLoader(path=directory, glob=glob)
     documents = loader.load()
 
     # Split documents into chunks

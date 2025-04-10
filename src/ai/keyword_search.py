@@ -1,5 +1,5 @@
-from langchain.retrievers import BM25Retriever
-from langchain.document import Document
+from langchain_community.retrievers import BM25Retriever
+from langchain.docstore.document import Document
 from nltk.tokenize import word_tokenize
 
 class KeywordSearchRetriever:
@@ -14,10 +14,16 @@ class KeywordSearchRetriever:
             top_k (int): The number of top results to retrieve. Defaults to 5.
         """
 
-        keyword_retriever = BM25Retriever.from_documents(
+        self.keyword_retriever = BM25Retriever.from_documents(
             chunks,
             k=top_k,
             preprocess_func=word_tokenize,
         )
-
-        return keyword_retriever
+    
+    def get_retriever(self) -> BM25Retriever:
+        """
+        Get the keyword retriever.
+        Returns:
+            BM25Retriever: The keyword retriever.
+        """
+        return self.keyword_retriever

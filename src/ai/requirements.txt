@@ -3,8 +3,10 @@ openai
 gradio
 faiss-cpu
 #faiss-gpu
-langchain-faiss
+langchain
+langchain-community
 langchain-openai
 langchain-huggingface
+unstructured[pdf, docx, html]
 nltk
 rank_bm25

@@ -1,4 +1,4 @@
-from langchain.document import Document
+from langchain.docstore.document import Document
 
 def pretty_print_docs(docs:list[Document]) -> str:
     pretty_str = f"\n{'-' * 100}\n".join(

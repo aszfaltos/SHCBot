@@ -13,9 +13,15 @@ class Reranker:
         """
         model = HuggingFaceCrossEncoder(model_name=model_name)
         compressor = CrossEncoderReranker(model=model, top_n=top_k)
-        compression_retriever = ContextualCompressionRetriever(
+        self.compression_retriever = ContextualCompressionRetriever(
             base_compressor=compressor, 
             base_retriever=retriever
         )
-
-        return compression_retriever
+    
+    def get_retriever(self) -> ContextualCompressionRetriever:
+        """
+        Get the retriever.
+        Returns:
+            ContextualCompressionRetriever: The compression retriever.
+        """
+        return self.compression_retriever

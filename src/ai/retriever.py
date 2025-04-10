@@ -3,14 +3,14 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.retrievers import EnsembleRetriever
-from langchain.document import Document
+from langchain.docstore.document import Document
 
 from document_loader import load_documents
 from vector_db import VectorDB
 from keyword_search import KeywordSearchRetriever
 from reranker import Reranker
 
-class Retriever:
+class RetrieverHandler:
     def __init__(self, vector_db_directory: str, documents_dir: str, embedding_model_name: str, reranker_model_name: str, chunk_size: int, chunk_overlap: int, dense_top_k: int = 5, sparse_top_k: int = 5, reranker_top_k: int = 5, glob: str="**/[!.]*", device: str = "cpu", recreate_vector_db: bool = False):
         """
         Initialize the Retriever class.
@@ -28,37 +28,44 @@ class Retriever:
             device (str): The device to use for the embedding model ("cpu" or "cuda"). Defaults to "cpu".
         """
         # Load documents
+        print("Loading documents...")
         chunks = load_documents(documents_dir, chunk_size, chunk_overlap, glob)
 
         # Init VectorDB
-        self.vectorstore = VectorDB(
+        print("Initializing vectorstore...")
+        self.vectordb = VectorDB(
             directory=vector_db_directory,
             embedding_model_name=embedding_model_name,
             chunks=chunks,
             device=device,
             recreate=recreate_vector_db
         )
+        self.vectorstore = self.vectordb.get_vectorstore()
 
         # Create a retriever from the vectorstore
         self.vector_retriever = self.vectorstore.as_retriever(search_kwargs={"n_results": dense_top_k})
 
         # Create a keyword search retriever
-        self.keyword_retriever = KeywordSearchRetriever(
+        print("Initializing keyword retriever...")
+        self.keyword_search = KeywordSearchRetriever(
             chunks=chunks,
             top_k=sparse_top_k
         )
+        self.keyword_retriever = self.keyword_search.get_retriever()
 
+        print("Initializing ensemble retriever with reranker...")
         # Combine the two retrievers with ensemble
         self.ensemble_retriever = EnsembleRetriever(
             retrievers=[self.keyword_retriever, self.vector_retriever], weights=[0.5, 0.5]
         )
 
         # Set up reranker
-        self.compression_retriever = Reranker(
+        self.reranker = Reranker(
             model_name=reranker_model_name,
             retriever=self.ensemble_retriever,
             top_k=reranker_top_k
         )
+        self.compression_retriever = self.reranker.get_retriever()
 
     def query(self, query_text: str) -> str:
         """
@@ -115,3 +122,9 @@ class Retriever:
             list[Document]: A list of retrieved documents.
         """
         return self.keyword_retriever.invoke(query_text)
+
+    def get_retriever(self):
+        """
+        Get the reranker retriever.
+        """
+        return self.compression_retriever
