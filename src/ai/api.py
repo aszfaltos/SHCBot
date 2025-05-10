@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from rag_chain import RAGChain
 from dotenv import load_dotenv
@@ -14,7 +14,8 @@ async def lifespan(app: FastAPI):
     Lifespan function to initialize and clean up resources.
     """
     rag_chain = RAGChain()
-    yield {"rag_chain": rag_chain}
+    app.state.rag_chain = rag_chain
+    yield
     print("Cleaning up resources...")
 
 app = FastAPI(
@@ -38,15 +39,17 @@ class QueryResponse(BaseModel):
     answer: str
 
 @app.post("/query", response_model=QueryResponse)
-async def query_rag_chain(request: QueryRequest, app_state=app.state):
+async def query_rag_chain(request: QueryRequest, fastapi_request: Request):
     """
     Endpoint to query the RAGChain.
     Args:
         request (QueryRequest): The request containing the user message and chat history.
+        fastapi_request (Request): The FastAPI request object to access app state.
     Returns:
         QueryResponse: The generated answer.
     """
-    rag_chain = app_state.get("rag_chain")
+    # Access rag_chain directly from app.state
+    rag_chain = fastapi_request.app.state.rag_chain
     if not rag_chain:
         raise HTTPException(status_code=500, detail="RAGChain is not initialized.")
 
