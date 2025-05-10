@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@plugin "tailwind-scrollbar";
+
+:root {
+  --background: #e5e7eb;
+  --foreground: #171717;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --animate-marquee-left: marquee-left 5s linear infinite;
+
+  @keyframes marquee-left {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(calc(-50% - 16px));
+    }
+  }
+}
+
