@@ -1,6 +1,5 @@
 python-dotenv
 openai
-gradio
 faiss-cpu
 #faiss-gpu
 langchain
@@ -10,3 +9,5 @@ langchain-huggingface
 unstructured[pdf, docx, html]
 nltk
 rank_bm25
+fastapi
+uvicorn

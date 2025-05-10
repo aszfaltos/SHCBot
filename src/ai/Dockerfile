@@ -2,20 +2,22 @@
 FROM python:3.10-bookworm
 
 # Set the working directory
-WORKDIR /
+WORKDIR /app
 
-# Copy only requirements first to leverage Docker cache
-COPY requirements.txt .
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy the source code
+COPY . /app
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
+# Expose the port
+EXPOSE 8000
 
-# Expose a port (optional, if using Flask/FastAPI)
-EXPOSE 5001
-
-# Run the AI application (modify as needed)
-CMD ["python", "app.py"]
+# Run the FastAPI app
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
 
