@@ -9,7 +9,7 @@ let clientPromise: Promise<MongoClient>;
 if (!uri) throw new Error("Add MONGODB_URI to .env.local");
 
 if (process.env.NODE_ENV === "development") {
-  let globalWithMongo = global as typeof globalThis & {
+  const globalWithMongo = global as typeof globalThis & {
     _mongoClientPromise?: Promise<MongoClient>;
   };
 

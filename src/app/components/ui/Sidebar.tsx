@@ -1,13 +1,4 @@
-import {
-  History,
-  LogIn,
-  LogOut,
-  Palette,
-  Plus,
-  Settings,
-  UserPlus,
-  UserRoundX,
-} from "lucide-react";
+import { History, LogOut, Palette, Plus, UserRoundX } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useChatHistory } from "@/context/ChatHistoryContext";
@@ -39,23 +30,19 @@ const Sidebar = ({
     if (user) {
       refreshHistory();
     }
-  }, [user]);
+  }, [user, refreshHistory]);
 
   const toggleProfileMenu = (e: React.MouseEvent) => {
     e.stopPropagation(); // prevent closing sidemenu
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
 
-  const handleAuth = () => {
-    // Redirect to the registration/login page
-    router.push("/auth");
-  };
-
   const filteredHistory = history
     .map((item) => ({
       ...item,
-      conversations: item.conversations.filter((conversation: any) =>
-        conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
+      conversations: item.conversations.filter(
+        (conversation: { title: string }) =>
+          conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
       ),
     }))
     .filter((item) => item.conversations.length > 0);
@@ -135,16 +122,18 @@ const Sidebar = ({
               {item.title}
             </h2>
             <ul className="space-y-1 mt-3">
-              {item.conversations.map((conv: any, index: number) => (
-                <HistoryItem
-                  key={conv._id || `conv-${index}`}
-                  onClick={() => {
-                    onSelectChat(conv._id); // optional: still notify parent
-                    router.push(`/chat/${conv._id}`);
-                  }}
-                  conversation={conv}
-                />
-              ))}
+              {item.conversations.map(
+                (conv: { _id: string; title: string }, index: number) => (
+                  <HistoryItem
+                    key={conv._id || `conv-${index}`}
+                    onClick={() => {
+                      onSelectChat(conv._id); // optional: still notify parent
+                      router.push(`/chat/${conv._id}`);
+                    }}
+                    conversation={conv}
+                  />
+                )
+              )}
             </ul>
           </div>
         ))}

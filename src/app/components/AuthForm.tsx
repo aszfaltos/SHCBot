@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; // Correct hook for App Directory
 import clsx from "clsx";
+import Link from "next/link";
 
 const AuthForm = ({
   initialMode = "login",
@@ -65,6 +66,7 @@ const AuthForm = ({
         setMessage(data.error);
       }
     } catch (error) {
+      console.error("Error during authentication:", error);
       setMessage("An error occurred. Please try again.");
     }
   };
@@ -80,12 +82,12 @@ const AuthForm = ({
         onSubmit={handleSubmit}
         className="flex-1 flex flex-col items-center justify-between gap-2"
       >
-        <a
+        <Link
           href="/"
           className="text-3xl font-bold bg-gradient-to-t from-violet-800 to-purple-700 dark:from-violet-600 dark:to-purple-500 inline-block text-transparent bg-clip-text pr-1 tracking-[-.1em]"
         >
           shcbot
-        </a>
+        </Link>
         <div className="flex-1 flex flex-col items-center justify-center gap-2 w-full">
           {!isLogin && (
             <input

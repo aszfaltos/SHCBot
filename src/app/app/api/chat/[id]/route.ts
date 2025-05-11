@@ -5,12 +5,11 @@ import { ObjectId } from "mongodb";
 // GET a specific chat by ID
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const chatId = id;
   try {
-    const { id } = await context.params;
-    const chatId = id;
-    
     if (!ObjectId.isValid(chatId)) {
       return NextResponse.json({ error: "Invalid chat ID" }, { status: 400 });
     }
@@ -26,9 +25,9 @@ export async function GET(
       return NextResponse.json({ error: "User ID not found" }, { status: 401 });
     }
 
-    const chat = await chats.findOne({ 
+    const chat = await chats.findOne({
       _id: new ObjectId(chatId),
-      userId 
+      userId,
     });
 
     if (!chat) {
@@ -37,24 +36,21 @@ export async function GET(
 
     return NextResponse.json(chat);
   } catch (error) {
-    console.error(`GET /chat/${context.params.id} error:`, error);
+    console.error(`GET /chat/${chatId} error:`, error);
     return NextResponse.json(
       { error: "Failed to fetch chat" },
       { status: 500 }
     );
   }
-} 
-
+}
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const chatId = id;
   try {
-    // Await the params object itself
-    const { id } = await context.params;
-    const chatId = id;
-    
     if (!ObjectId.isValid(chatId)) {
       return NextResponse.json({ error: "Invalid chat ID" }, { status: 400 });
     }
@@ -93,13 +89,13 @@ export async function PATCH(
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ 
-      message: "Chat updated", 
+    return NextResponse.json({
+      message: "Chat updated",
       botResponse,
-      updatedContent 
+      updatedContent,
     });
   } catch (error) {
-    console.error(`PATCH /api/chat/${context.params.id} error:`, error);
+    console.error(`PATCH /api/chat/${chatId} error:`, error);
     return NextResponse.json(
       { error: "Failed to update chat" },
       { status: 500 }
@@ -108,16 +104,21 @@ export async function PATCH(
 }
 
 // Helper function to generate a demo bot response
-function generateBotResponse(userContent: any): string {
+function generateBotResponse(
+  userContent: string | { content: string } | { content: string }[]
+): string {
   // If content is an array, get the last user message
-  const userMessage = Array.isArray(userContent) 
+  const userMessage = Array.isArray(userContent)
     ? userContent[userContent.length - 1]?.content || ""
-    : typeof userContent === 'string' 
-      ? userContent 
-      : userContent?.content || "";
-  
+    : typeof userContent === "string"
+    ? userContent
+    : userContent?.content || "";
+
   // Simple demo responses based on user input
-  if (userMessage.toLowerCase().includes("hello") || userMessage.toLowerCase().includes("hi")) {
+  if (
+    userMessage.toLowerCase().includes("hello") ||
+    userMessage.toLowerCase().includes("hi")
+  ) {
     return "Hello there! How can I help you today?";
   } else if (userMessage.toLowerCase().includes("help")) {
     return "I'm here to help! What do you need assistance with?";
@@ -135,13 +136,11 @@ function generateBotResponse(userContent: any): string {
 // UPDATE a specific chat's title
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const chatId = id;
   try {
-    // Await the params object itself
-    const { id } = await context.params;
-    const chatId = id;
-    
     if (!ObjectId.isValid(chatId)) {
       return NextResponse.json({ error: "Invalid chat ID" }, { status: 400 });
     }
@@ -169,7 +168,7 @@ export async function PUT(
 
     return NextResponse.json({ message: "Chat title updated" });
   } catch (error) {
-    console.error(`PUT /chat/${context.params.id} error:`, error);
+    console.error(`PUT /chat/${chatId} error:`, error);
     return NextResponse.json(
       { error: "Failed to update chat title" },
       { status: 500 }
@@ -180,13 +179,11 @@ export async function PUT(
 // DELETE a specific chat
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const chatId = id;
   try {
-    // Await the params object itself
-    const { id } = await context.params;
-    const chatId = id;
-    
     if (!ObjectId.isValid(chatId)) {
       return NextResponse.json({ error: "Invalid chat ID" }, { status: 400 });
     }
@@ -202,9 +199,9 @@ export async function DELETE(
       return NextResponse.json({ error: "User ID not found" }, { status: 401 });
     }
 
-    const result = await chats.deleteOne({ 
+    const result = await chats.deleteOne({
       _id: new ObjectId(chatId),
-      userId 
+      userId,
     });
 
     if (result.deletedCount === 0) {
@@ -213,7 +210,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Chat deleted" });
   } catch (error) {
-    console.error(`DELETE /chat/${context.params.id} error:`, error);
+    console.error(`DELETE /chat/${chatId} error:`, error);
     return NextResponse.json(
       { error: "Failed to delete chat" },
       { status: 500 }
