@@ -1,24 +1,14 @@
 "use client";
 
-import AuthForm from "@/components/AuthForm";
+import { Suspense, useEffect, useState } from "react";
+import AuthPageWrapper from "@/components/AuthPageWrapper";
 import { useAuth } from "@/hooks/useAuth";
 import clsx from "clsx";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function AuthPage() {
   const [mounted, setIsMounted] = useState(false);
-
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const mode = (
-    ["login", "register"].includes(searchParams.get("mode") ?? "")
-      ? searchParams.get("mode")
-      : "login"
-  ) as "login" | "register";
-
-  const { user, isLoading, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,12 +23,12 @@ export default function AuthPage() {
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"
           )}
         >
-          <a
+          <Link
             href="/"
             className="text-3xl font-bold bg-gradient-to-t from-violet-800 to-purple-700 dark:from-violet-600 dark:to-purple-500 inline-block text-transparent bg-clip-text pr-1 tracking-[-.1em]"
           >
             shcbot
-          </a>
+          </Link>
           <h1 className="text-2xl text-center dark:text-white">
             Welcome back, <span className="font-bold">{user.name}</span>!
           </h1>
@@ -53,7 +43,9 @@ export default function AuthPage() {
           </button>
         </div>
       ) : (
-        <AuthForm initialMode={mode} />
+        <Suspense fallback={<div>Loading form...</div>}>
+          <AuthPageWrapper />
+        </Suspense>
       )}
     </main>
   );

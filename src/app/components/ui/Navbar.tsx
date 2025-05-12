@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import MenuButton from "./MenuButton";
+import Link from "next/link";
 
 interface NavbarProps {
   isOpen: boolean;
@@ -16,9 +17,9 @@ const Navbar = ({ isOpen, onClick, className }: NavbarProps) => {
       <div className="absolute left-5">
         <MenuButton isOpen={isOpen} onClick={onClick} />
       </div>
-      <a href="/" className="text-3xl font-semibold tracking-[-.1em]">
+      <Link href="/" className="text-3xl font-semibold tracking-[-.1em]">
         shcbot
-      </a>
+      </Link>
     </nav>
   );
 };

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 
 interface ChatHistoryContextType {
   history: any[];
@@ -62,7 +62,7 @@ export const ChatHistoryProvider = ({
 }) => {
   const [history, setHistory] = useState<any[]>([]);
 
-  const refreshHistory = async () => {
+  const refreshHistory = useCallback(async () => {
     try {
       const res = await fetch("/api/chat", { credentials: "include" });
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -73,7 +73,7 @@ export const ChatHistoryProvider = ({
     } catch (error) {
       console.error("Error fetching chats:", error);
     }
-  };
+  }, []);
 
   return (
     <ChatHistoryContext.Provider value={{ history, refreshHistory }}>

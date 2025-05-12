@@ -17,15 +17,10 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const { refreshHistory } = useChatHistory();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -35,34 +30,36 @@ export default function ChatInterface() {
 
   // Fetch messages if chatId exists
   useEffect(() => {
-    const fetchMessages = () => {
+    const fetchMessages = async () => {
       setIsLoading(true);
+
       if (!chatId) {
         setIsLoading(false);
         return;
       }
 
-      fetch(`/api/chat/${chatId}`, {
-        credentials: "include",
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch messages");
-          return res.json();
-        })
-        .then((data) => {
-          setMessages(data.content); // assuming `content` is the array of messages
-        })
-        .catch((err) => {
-          // console.error("Error loading messages:", err);
-          router.push("/chat");
-        })
-        .finally(() => {
-          setIsLoading(false);
+      try {
+        const res = await fetch(`/api/chat/${chatId}`, {
+          credentials: "include",
+          method: "GET",
         });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+
+        const data = await res.json();
+        setMessages(data.content); // assuming `content` is the array of messages
+      } catch (err) {
+        console.error("Error loading messages:", err);
+        router.push("/chat");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchMessages();
-  }, [chatId]);
+  }, [chatId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +94,6 @@ export default function ChatInterface() {
         const data = await res.json();
         currentChatId = data.insertedId;
         router.replace(`/chat/${currentChatId}`);
-        refreshHistory();
       }
       const updatedMessages = [...messages, userMessage];
 
@@ -121,6 +117,7 @@ export default function ChatInterface() {
       // Append the new bot message to existing messages
       const lastMessage = data.updatedContent.slice(-1)[0];
       setMessages((prev) => [...prev, lastMessage]);
+      refreshHistory();
     } catch (err) {
       console.error("Message send error:", err);
     }
