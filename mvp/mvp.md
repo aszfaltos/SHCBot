@@ -37,28 +37,41 @@ the system what they need.
 
 #### User Stories included
 
+US1.1
 As an Msc student, I want to find the right person to contact with specific issues, so that I can get correct answers quickly.
 
+US1.2
 As a new student, I want to access up-to-date information about the university, schedule and learning possibilities, so that I can seize all the opportunities.
 
+US1.4
 As an ELTE student, I want to clarify house roles and regulations, so that I do not break any policies accidentally.
 
+US1.5
 As a mobile user, I want a simple and explanatory answers, so that I do not have to spend too much time searching for information.
 
+US2.3
+As an ambitious student, I want to explore scholar project opportunities and competitions, so that I can fulfill my dreams.
+
+US3.3
 As a new and excited student, I want to seize all the opportunities, so that I can bring the maximum from university life.
 
+US3.4
 As a first-year student, I want to have quick answers to my questions, so that I can make quick decisions regarding my studies.
 
-As an ambitious student, I want to explore scholar project opportunities and competitions, so that I can fulfill my dreams.
 
 #### User Stories not included
 
+US1.3
 As a student, I want to access course materials, so that I can study efficiently.
 
+US3.1
 As an extroverted student, I want to get information about mobility programmes, so that I can apply them.
 
+US3.2
 As an extroverted student, I want to explore other universities, so that I can meet new people.
 
+US2.1
 As a financially struggling student, I want to find clear information about diverse scholarship opportunities, so that I can fund my studies.
 
+US2.2
 As a student looking for accomodation, I want to access to university dormitory application, so that I can solve housing without hassle.
