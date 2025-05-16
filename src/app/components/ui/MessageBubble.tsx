@@ -10,6 +10,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
   >(null);
 
   const handleReaction = (reaction: "like" | "dislike") => {
+    console.log("@@@@@@@",message.id)
     setSelectedReaction(reaction === selectedReaction ? null : reaction); // Toggle reaction
   };
 
