@@ -3,6 +3,7 @@ import clientPromise from "@/app/api/auth/mongodb";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
+import { cookies } from "next/headers";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -45,6 +46,9 @@ export async function POST(req: Request) {
         _id: user._id,
         username: user.username,
         email: user.email,
+        likes: 0,
+        dislikes: 0,
+        messages: 0,
       };
 
       const res = NextResponse.json({
@@ -134,6 +138,85 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+
+  } catch (err) {
+    console.error("Error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: Request) {
+  const body = await req.json();
+  const { mode, email, password, username } = body;
+
+  try {
+    const client = await clientPromise;
+    const db = client.db(process.env.DATABASE_NAME!);
+    const users = db.collection("users");
+
+    const user = await users.findOne({ email });
+    if (!user) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    // Create user object to return (excluding sensitive data)
+    const userToReturn = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      likes: 0,
+      dislikes: 0,
+      messages: 0,
+    };
+
+    const res = NextResponse.json({
+      message: "Login successful",
+      token,
+      user: userToReturn,
+    });
+
+    // Set cookies with user data
+    res.cookies.set("userId", user._id.toString(), {
+      path: "/",
+      httpOnly: false, // Client-side JS needs to access
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      sameSite: "lax",
+    });
+
+    res.cookies.set("name", user.username, {
+      path: "/",
+      httpOnly: false,
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: "lax",
+    });
+
+    res.cookies.set("email", user.email, {
+      path: "/",
+      httpOnly: false,
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: "lax",
+    });
+
+    return res;
+
   } catch (err) {
     console.error("Error:", err);
     return NextResponse.json(
@@ -186,3 +269,4 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
