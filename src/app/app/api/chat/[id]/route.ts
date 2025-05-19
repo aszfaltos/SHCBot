@@ -68,6 +68,7 @@ export async function PATCH(
     }
 
     const contentArray = Array.isArray(content) ? content : [content];
+
     // Generate a demo chatbot response
     const botResponse = generateBotResponse(contentArray);
     const updatedContent = [
