@@ -1,0 +1,2 @@
+# Run scraper every day at midnight
+0 0 * * * /app/run_scraper.sh >> /app/scraper_cron.log 2>&1

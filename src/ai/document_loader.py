@@ -1,6 +1,10 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import DirectoryLoader
 
+import logging
+
+logger = logging.getLogger("uvicorn.error")
+
 def load_documents(directory: str, chunk_size: int, chunk_overlap: int, glob: str = "**/[!.]*") -> list:
     """
     Load documents from a directory using a glob pattern, then splitting them into chunks.
@@ -15,6 +19,7 @@ def load_documents(directory: str, chunk_size: int, chunk_overlap: int, glob: st
     documents = loader.load()
 
     # Split documents into chunks
+    logger.info("Splitting documents...")
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     chunks = text_splitter.split_documents(documents)
 

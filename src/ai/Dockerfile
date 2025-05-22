@@ -6,14 +6,22 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libgl1 \
+    libgl1 libmagic1 libmagic-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy the source code
-COPY . /app
+# Copy requirements file
+COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install langchain-huggingface
+RUN python -c "from langchain_huggingface import HuggingFaceEmbeddings; HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-small')"
+RUN python -c "from langchain_community.cross_encoders import HuggingFaceCrossEncoder; HuggingFaceCrossEncoder(model_name='BAAI/bge-reranker-v2-m3')"
+RUN python -c "import nltk; nltk.download('punkt')"
+
+# Copy the application code
+COPY . .
 
 # Expose the port
 EXPOSE 8000

@@ -8,6 +8,11 @@ from langchain.retrievers import RePhraseQueryRetriever
 
 from vector_db import VectorDatabase
 
+
+import logging
+
+logger = logging.getLogger("uvicorn.error")
+
 class RAGChain:
     def __init__(self):
         # Prepare arguments for VectorDatabase
@@ -35,7 +40,7 @@ class RAGChain:
 
         # Create chain
         self._create_chain(retriever)
-        print("RAG chain initialized.")
+        logger.info("RAG chain initialized.")
 
     def _create_chain(self, retriever):
         # Create rephrasing retriever

@@ -68,9 +68,9 @@ export async function PATCH(
     }
 
     const contentArray = Array.isArray(content) ? content : [content];
-
+    console.log(contentArray);
     // Generate a demo chatbot response
-    const botResponse = generateBotResponse(contentArray);
+    const botResponse = await generateBotResponse(contentArray);
     const updatedContent = [
       ...contentArray,
       {
@@ -104,33 +104,49 @@ export async function PATCH(
   }
 }
 
-// Helper function to generate a demo bot response
-function generateBotResponse(
-  userContent: string | { content: string } | { content: string }[]
-): string {
+// Helper function to generate a bot response
+async function generateBotResponse(
+  userContent: string | { role: string; content: string } | { role: string; content: string }[]
+): Promise<string> {
   // If content is an array, get the last user message
-  const userMessage = Array.isArray(userContent)
-    ? userContent[userContent.length - 1]?.content || ""
-    : typeof userContent === "string"
+  let chatHistory = Array.isArray(userContent)
     ? userContent
-    : userContent?.content || "";
+    : typeof userContent === "string"
+    ? [{role: "user", content: userContent}]
+    : [userContent || {role: "user", content: ""}];
 
-  // Simple demo responses based on user input
-  if (
-    userMessage.toLowerCase().includes("hello") ||
-    userMessage.toLowerCase().includes("hi")
-  ) {
-    return "Hello there! How can I help you today?";
-  } else if (userMessage.toLowerCase().includes("help")) {
-    return "I'm here to help! What do you need assistance with?";
-  } else if (userMessage.toLowerCase().includes("thank")) {
-    return "You're welcome! Is there anything else you'd like to know?";
-  } else if (userMessage.toLowerCase().includes("bye")) {
-    return "Goodbye! Feel free to chat again anytime.";
-  } else if (userMessage.toLowerCase().includes("?")) {
-    return "That's an interesting question. While I'm just a demo bot right now, I'd be happy to try answering that in the future!";
-  } else {
-    return "I'm a demo chatbot. In the full version, I'll be able to provide more helpful responses to messages like yours!";
+  // Get the last user message if chatHistory is an array
+  const lastUserMessage = chatHistory[chatHistory.length - 1]?.content || ""
+  chatHistory = chatHistory.slice(0, chatHistory.length - 1);
+
+  // Prepare chat history in the format expected by the API
+  const formattedHistory = Array.isArray(chatHistory)
+    ? chatHistory.map(msg => ({ role: msg.role, content: msg.content }))
+    : [];
+
+  try {
+    // Call the AI server API
+    const response = await fetch(`${process.env.AI_API_URL || 'http://localhost:8000'}/query`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: lastUserMessage,
+        chat_history: formattedHistory
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Error from AI server:', response.statusText);
+      return "I'm sorry, I encountered an error while processing your request.";
+    }
+
+    const data = await response.json();
+    return data.answer;
+  } catch (error) {
+    console.error('Error calling AI service:', error);
+    return "I'm sorry, I'm having trouble connecting to my knowledge base right now.";
   }
 }
 

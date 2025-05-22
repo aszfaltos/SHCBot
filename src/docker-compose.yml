@@ -1,0 +1,32 @@
+services:
+  web:
+    build: ./app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: "production"
+      AI_API_URL: "http://ai:8000"
+    links:
+      - ai
+    restart: always
+
+  ai:
+    build: ./ai
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/PDF:/app/data/PDF
+      - ./data/Markdown:/app/data/Markdown
+      - ./.vector_storage:/app/.vector_storage
+    environment:
+      DB_DIRECTORY: /app/.vector_storage
+      DATA_DIRECTORY: /app/data
+    restart: always
+
+  scraper:
+    build: ./scraper
+    volumes:
+      - ./data/PDF:/app/PDF
+      - ./data/Markdown:/app/Markdown
+    restart: always
+

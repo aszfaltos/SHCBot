@@ -6,8 +6,9 @@ langchain
 langchain-community
 langchain-openai
 langchain-huggingface
-unstructured[pdf, docx, html]
+unstructured[pdf, docx, html, md]
 nltk
 rank_bm25
 fastapi
 uvicorn
+python-magic

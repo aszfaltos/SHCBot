@@ -1,0 +1,4 @@
+langchain-community
+beautifulsoup4
+lxml
+requests

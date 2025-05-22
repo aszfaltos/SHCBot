@@ -10,6 +10,9 @@ from document_loader import load_documents
 from keyword_search import KeywordRetriever
 from reranker import Reranker
 
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 class VectorDatabase:
     def __init__(self, vector_db_directory: str, documents_dir: str, embedding_model_name: str, reranker_model_name: str, chunk_size: int, chunk_overlap: int, dense_top_k: int = 5, sparse_top_k: int = 5, reranker_top_k: int = 5, glob: str="**/[!.]*", device: str = "cpu", recreate: bool = False):
@@ -45,13 +48,13 @@ class VectorDatabase:
         
         
         # Load documents - it is always required for the keyword retriever
-        print(f"Loading documents from {documents_dir} with glob pattern {glob}")
+        logger.info(f"Loading documents from {documents_dir} with glob pattern {glob}...")
         chunks = load_documents(documents_dir, chunk_size, chunk_overlap, glob)
 
         # Check if the vector db exists
         if VectorDatabase.vector_db_exists(vector_db_directory):
             # Load vector db
-            print("Loading vector db...")
+            logger.info("Loading vector db...")
             self.vectorstore = VectorDatabase.load_vector_db(
                 directory=vector_db_directory,
                 embedding_model_name=embedding_model_name,
@@ -59,7 +62,7 @@ class VectorDatabase:
             )
         else:
             # Create vector db
-            print("Creating vector db...")
+            logger.info("Creating vector db...")
             self.vectorstore = VectorDatabase.create_vector_db(
                 directory=vector_db_directory,
                 embedding_model_name=embedding_model_name,
@@ -71,20 +74,20 @@ class VectorDatabase:
         self.vector_retriever = self.vectorstore.as_retriever(search_kwargs={"n_results": dense_top_k})
 
         # Init keyword search retriever
-        print("Initializing keyword retriever...")
+        logger.info("Initializing keyword retriever...")
         self.keyword_retriever = KeywordRetriever.get_retriever(
             chunks=chunks,
             top_k=sparse_top_k
         )
 
         # Combine the two retrievers with ensemble
-        print("Initializing ensemble retriever...")
+        logger.info("Initializing ensemble retriever...")
         self.ensemble_retriever = EnsembleRetriever(
             retrievers=[self.keyword_retriever, self.vector_retriever], weights=[0.5, 0.5]
         )
 
         # Set up reranker
-        print("Initializing the reranker...")
+        logger.info("Initializing the reranker...")
         self.compression_retriever = Reranker.get_retriever(
             model_name=reranker_model_name,
             retriever=self.ensemble_retriever,

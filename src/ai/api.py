@@ -61,3 +61,10 @@ async def query_rag_chain(request: QueryRequest, fastapi_request: Request):
         return QueryResponse(answer=answer)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+async def health():
+    """
+    Simple health check endpoint.
+    """
+    return {"status": "ok"}
