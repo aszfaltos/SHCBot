@@ -1,5 +1,5 @@
 # Source URL
-https://www.inf.elte.hu/content/tehetseggondozas.t.952?m=74
+https://www.inf.elte.hu/content/tehetseggondozas.t.952?m=117
 
 # Tehetséggondozás
 # Tehetséggondozás

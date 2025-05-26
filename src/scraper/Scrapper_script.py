@@ -53,22 +53,28 @@ def get_filename_from_url(url):
     return unquote(filename.split("?")[0].split("#")[0])
 
 
+# Create separate directories for PDFs and markdown files
+pdf_dir = os.path.join('PDF')
+markdown_dir = os.path.join('Markdown')
+os.makedirs(pdf_dir, exist_ok=True)
+os.makedirs(markdown_dir, exist_ok=True)
+
+for file in os.listdir(pdf_dir):
+    os.remove(os.path.join(pdf_dir, file))
+for file in os.listdir(markdown_dir):
+    os.remove(os.path.join(markdown_dir, file))
+
 for i in range(len(urls)):
     # Create the RecursiveUrlLoader
     loader = RecursiveUrlLoader(
         urls[i],
-        max_depth=2,
+        max_depth=1,
         extractor=bs4_extractor,
         timeout=1000,
         use_async=False
     )
 
     documents = loader.lazy_load()
-    # Create separate directories for PDFs and markdown files
-    pdf_dir = os.path.join('PDF')
-    markdown_dir = os.path.join('Markdown')
-    os.makedirs(pdf_dir, exist_ok=True)
-    os.makedirs(markdown_dir, exist_ok=True)
 
     for doc in documents:
         source = doc.metadata.get("source", "unknown")

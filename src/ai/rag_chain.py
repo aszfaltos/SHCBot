@@ -35,7 +35,7 @@ class RAGChain:
 
         # Index database & Create retriever
         vectorDB = VectorDatabase(**self.vector_db_args,
-                                    recreate=False)
+                                    recreate=True)
         retriever = vectorDB.get_retriever()
 
         # Create chain

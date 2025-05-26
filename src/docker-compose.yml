@@ -1,6 +1,7 @@
 services:
   web:
     build: ./app
+    platform: linux/amd64
     ports:
       - "3000:3000"
     environment:
@@ -12,21 +13,42 @@ services:
 
   ai:
     build: ./ai
+    platform: linux/amd64
     ports:
       - "8000:8000"
     volumes:
-      - ./data/PDF:/app/data/PDF
-      - ./data/Markdown:/app/data/Markdown
-      - ./.vector_storage:/app/.vector_storage
+      - vector_storage:/app/.vector_storage
+      - pdf_data:/app/data/PDF
+      - markdown_data:/app/data/Markdown
     environment:
       DB_DIRECTORY: /app/.vector_storage
       DATA_DIRECTORY: /app/data
+    #  EMBEDDING_MODEL: "http://tei:80/v1"
+    # links:
+    #   - tei
+    # depends_on:
+    #   - tei
     restart: always
 
   scraper:
     build: ./scraper
     volumes:
-      - ./data/PDF:/app/PDF
-      - ./data/Markdown:/app/Markdown
+      - pdf_data:/app/PDF
+      - markdown_data:/app/Markdown
     restart: always
 
+  # tei:
+  #   image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.7
+  #   platform: linux/amd64
+  #   ports:
+  #     - "8080:80"
+  #   command: --model-id BAAI/bge-m3
+  #   volumes:
+  #     - tei_model_data:/data
+  #   restart: always
+
+volumes:
+  vector_storage:
+  pdf_data:
+  markdown_data:
+  tei_model_data:

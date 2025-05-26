@@ -1,4 +1,5 @@
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import TokenTextSplitter
+from transformers import AutoTokenizer
 from langchain_community.document_loaders import DirectoryLoader
 
 import logging
@@ -20,7 +21,20 @@ def load_documents(directory: str, chunk_size: int, chunk_overlap: int, glob: st
 
     # Split documents into chunks
     logger.info("Splitting documents...")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-m3")
+
+    # Define a function to count tokens
+    def count_tokens(text):
+        return len(tokenizer.encode(text))
+
+    # Initialize the TokenTextSplitter
+    text_splitter = TokenTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=count_tokens
+    )
+
+    # Split your text
     chunks = text_splitter.split_documents(documents)
 
     return chunks
