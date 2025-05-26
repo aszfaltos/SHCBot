@@ -142,10 +142,24 @@ class RAGChain:
         # Create a set of unique sources from the context
         used_sources = {document.metadata['source'] for document in unformatted_answer['context']}
 
-        # Trim the filename
-        used_sources = [os.path.basename(source) for source in used_sources]
+        # Extract URLs from markdown files in the context
+        urls = []
+        for source in used_sources:
+            # Check if the source is a markdown file
+            if not source.endswith(".md"):
+                continue
+            # Extract the URL from the markdown file
+            try:
+                with open(source, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+                    if len(lines) > 1:
+                        url = lines[1].strip()
+                        urls.append(f"[{url}]({url})")
+            except Exception as e:
+                urls.append(os.path.basename(source))
 
-        # Form the answer
-        for document in used_sources:
-            formatted_answer += f"- {document}\n"
+        # Add unique URLs to the answer
+        for url in set(urls):
+            formatted_answer += f"- {url}\n"
+
         return formatted_answer

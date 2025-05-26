@@ -2,6 +2,7 @@ import type { Message } from "@/lib/types";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
+import ReactMarkdown from "react-markdown";
 
 const MessageBubble = ({ message }: { message: Message }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -201,7 +202,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <p>{message.content}</p>
+        <ReactMarkdown>{message.content}</ReactMarkdown>
       </div>
 
       {/* Like/Dislike Buttons */}
