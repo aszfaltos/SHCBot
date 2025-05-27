@@ -104,73 +104,6 @@ class VectorDatabase:
             top_k=reranker_top_k
         )
 
-    def create_vector_db(directory: str, embedding_model_name: str, chunks: list, device: str):
-        """
-        Build (or rebuild) a vectorstore one chunk at a time, with progress logging.
-        """
-        
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
-        vectorstore = None
-
-        total = len(chunks)
-        total_time = 0
-        avg_time = 0
-        step_size = 256
-
-        for idx in range(0, len(chunks), step_size):
-            time_start = time.time()
-            logger.info(f"Creating vector db: chunk {min(idx + step_size, total)}/{total}, "
-                        f"{min(idx + step_size, total) / total * 100:.2f}%, ETF: {avg_time * (total - idx):.2f}s")
-
-            # Process current chunk
-            current_chunks = chunks[idx:idx + step_size]
-
-            if vectorstore is None:
-                # First chunk: create new vectorstore
-                vectorstore = FAISS.from_documents(current_chunks, embeddings)
-            else:
-                # Subsequent chunks: add to existing
-                vectorstore.add_documents(current_chunks)
-
-            end_time = time.time()
-            total_time += end_time - time_start
-            avg_time = total_time / (idx + step_size)
-
-        # Persist the vectorstore to disk
-        vectorstore.save_local(directory)
-        return vectorstore
-
-    @staticmethod
-    def __create_vector_db(directory: str, embedding_model_name: str, chunks: list, device: str):
-        """
-        Build (or rebuild) a vectorstore one chunk at a time, with progress logging.
-        """
-        # initialize your embedding model
-        client = OpenAI(base_url=embedding_model_name, api_key="-")
-        embedding_model = HuggingFaceEndpointEmbeddings(client=client)
-
-        vectorstore = None
-        total = len(chunks)
-        total_time = 0
-        avg_time = 0
-        step_size = 256
-        for idx in range(0, len(chunks), step_size):
-            time_start = time.time()
-            logger.info(f"Creating vector db: chunk {min(idx+step_size,total)}/{total}, {min(idx+step_size,total)/total*100:.2f}%, ETF: {avg_time*(total-idx):.2f}s")
-            if vectorstore is None:
-                # first chunk: create new vectorstore
-                vectorstore = FAISS.from_documents(chunks[idx:idx+step_size], embedding_model)
-            else:
-                # subsequent chunks: add to existing
-                vectorstore.add_documents(chunks[idx:idx+step_size])
-            end_time = time.time()
-            total_time += end_time - time_start
-            avg_time = total_time / (idx+step_size)
-
-        # finally, persist to disk (if your VectorDatabase requires explicit persistence)
-        VectorDatabase.save_vector_db(vectorstore=vectorstore, directory=directory)
-        return vectorstore
-
     def vector_db_exists(directory: str) -> bool:
         """
         Check if the vector database exists in the specified directory.
@@ -181,7 +114,8 @@ class VectorDatabase:
         """
         return os.path.exists(directory) and os.path.isdir(directory) and len(os.listdir(directory)) != 0
     
-    def _create_vector_db(directory: str, embedding_model_name: str, chunks: list[Document], device: str = "cpu"):
+    @staticmethod
+    def create_vector_db(directory: str, embedding_model_name: str, chunks: list[Document], device: str = "cpu"):
         """
         Create a vector database from the given directory.
         Args:

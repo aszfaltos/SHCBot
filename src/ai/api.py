@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from rag_chain import RAGChain
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 # Load environment variables
 load_dotenv(override=True)
@@ -53,14 +56,15 @@ async def query_rag_chain(request: QueryRequest, fastapi_request: Request):
     if not rag_chain:
         raise HTTPException(status_code=500, detail="RAGChain is not initialized.")
 
-    try:
-        # Call the inference method of RAGChain
-        chat_history = request.chat_history
-        chat_history.append({"role": "user", "content": request.message})
-        answer = rag_chain.inference(chat_history)
-        return QueryResponse(answer=answer)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    #try:
+    # Call the inference method of RAGChain
+    chat_history = request.chat_history
+    chat_history.append({"role": "user", "content": request.message})
+    answer = rag_chain.inference(chat_history)
+    return QueryResponse(answer=answer)
+    #except Exception as e:
+    #    logger.info(e)
+    #    raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 async def health():

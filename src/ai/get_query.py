@@ -25,7 +25,7 @@ def get_query(chat_history: str) -> str:
     client = OpenAI()
 
     response = client.responses.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         instructions=system_prompt,
         input=chat_history,
     )

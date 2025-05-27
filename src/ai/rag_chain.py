@@ -35,7 +35,7 @@ class RAGChain:
 
         # Index database & Create retriever
         vectorDB = VectorDatabase(**self.vector_db_args,
-                                    recreate=True)
+                                    recreate=False)
         retriever = vectorDB.get_retriever()
 
         # Create chain
@@ -92,7 +92,7 @@ class RAGChain:
 
         # Recreate chain
         self._create_chain(retriever)
-        print("Database reindexed.")
+        logger.info("Database reindexed.")
 
     def get_openai_client():
         # Initialize OpenAI client
@@ -128,8 +128,8 @@ class RAGChain:
 
     def format_history(chat_history):
         formatted_history = "\n".join([f"{message['role'].capitalize()}: {message['content']}" for message in chat_history])
-        print(formatted_history)
-        print("-"*100)
+        logger.info(formatted_history)
+        logger.info("-"*100)
         return formatted_history
     
     def format_answer(unformatted_answer):
