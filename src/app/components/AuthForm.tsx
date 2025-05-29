@@ -113,7 +113,18 @@ const AuthForm = ({
             className="bg-gray-100 dark:bg-gray-700 rounded-md p-1 border-2 border-gray-300 dark:border-gray-800 dark:text-white focus:outline-none focus:border-purple-500 dark:focus:border-purple-700 transition duration-200 ease-in-out placeholder:text-gray-400 placeholder:text-sm"
           />
           {/*Need additional changing*/}
-          {message && <p className="text-red-500 text-sm">{message}</p>}{" "}
+          {message && (
+            <p
+              className={clsx(
+                "text-sm",
+                message.includes("successful")
+                  ? "text-green-500"
+                  : "text-red-500"
+              )}
+            >
+              {message}
+            </p>
+          )}{" "}
         </div>
         <button
           type="submit"

@@ -49,6 +49,9 @@ export default function ChatInterface() {
         }
 
         const data = await res.json();
+        if (data.content.length === 1) {
+          return;
+        }
         setMessages(data.content); // assuming `content` is the array of messages
       } catch (err) {
         console.error("Error loading messages:", err);
@@ -60,6 +63,44 @@ export default function ChatInterface() {
 
     fetchMessages();
   }, [chatId, router]);
+
+  useEffect(() => {
+    const handleFirstMessage = async () => {
+      const firstMessage = localStorage.getItem("firstMessage");
+
+      if (!firstMessage) return;
+      localStorage.removeItem("firstMessage");
+
+      setMessages([
+        JSON.parse(firstMessage) as Message,
+        {
+          id: uuidv4(),
+          role: "assistant",
+          content: "Thinking...",
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+
+      // Send only the new message
+      const res2 = await fetch(`/api/chat/${chatId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ content: messages }),
+      });
+
+      if (!res2.ok) throw new Error("Failed to update chat");
+
+      const data = await res2.json();
+
+      // Append the new bot message to existing messages
+      const lastMessage = data.updatedContent.slice(-1)[0];
+      setMessages([JSON.parse(firstMessage) as Message, lastMessage]);
+      refreshHistory();
+    };
+
+    handleFirstMessage();
+  }, [chatId, refreshHistory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +125,7 @@ export default function ChatInterface() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            content: [],
+            content: [userMessage],
             title: userMessage.content.substring(0, 50) || "New Chat",
           }),
         });
@@ -93,31 +134,37 @@ export default function ChatInterface() {
 
         const data = await res.json();
         currentChatId = data.insertedId;
-        router.replace(`/chat/${currentChatId}`);
+        router.push(`/chat/${currentChatId}`);
+        localStorage.setItem("firstMessage", JSON.stringify(userMessage));
+      } else {
+        const updatedMessages = [...messages, userMessage];
+        setMessages([
+          ...updatedMessages,
+          {
+            id: uuidv4(),
+            role: "assistant",
+            content: "Thinking...",
+            timestamp: new Date().toISOString(),
+          },
+        ]);
+
+        // Send only the new message
+        const res2 = await fetch(`/api/chat/${currentChatId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ content: updatedMessages }),
+        });
+
+        if (!res2.ok) throw new Error("Failed to update chat");
+
+        const data = await res2.json();
+
+        // Append the new bot message to existing messages
+        const lastMessage = data.updatedContent.slice(-1)[0];
+        setMessages([...updatedMessages, lastMessage]);
+        refreshHistory();
       }
-      const updatedMessages = [...messages, userMessage];
-
-      if (chatId) {
-        // Optimistically add user message
-        setMessages(updatedMessages);
-      }
-
-      // Send only the new message
-      const res2 = await fetch(`/api/chat/${currentChatId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ content: updatedMessages }),
-      });
-
-      if (!res2.ok) throw new Error("Failed to update chat");
-
-      const data = await res2.json();
-
-      // Append the new bot message to existing messages
-      const lastMessage = data.updatedContent.slice(-1)[0];
-      setMessages((prev) => [...prev, lastMessage]);
-      refreshHistory();
     } catch (err) {
       console.error("Message send error:", err);
     }
@@ -141,9 +188,12 @@ export default function ChatInterface() {
           </div>
         ) : (
           <div className="flex flex-col gap-4 p-4 bottom-0">
-            {messages.map((message) => (
-              <MessageBubble message={message} key={message.id} />
-            ))}
+            {messages.map(
+              (message) => (
+                console.log(message),
+                (<MessageBubble message={message} key={message.id} />)
+              )
+            )}
             <div ref={bottomRef} />
           </div>
         )}

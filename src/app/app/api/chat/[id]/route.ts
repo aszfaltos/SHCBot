@@ -106,46 +106,54 @@ export async function PATCH(
 
 // Helper function to generate a bot response
 async function generateBotResponse(
-  userContent: string | { role: string; content: string } | { role: string; content: string }[]
+  userContent:
+    | string
+    | { role: string; content: string }
+    | { role: string; content: string }[]
 ): Promise<string> {
   // If content is an array, get the last user message
   let chatHistory = Array.isArray(userContent)
     ? userContent
     : typeof userContent === "string"
-    ? [{role: "user", content: userContent}]
-    : [userContent || {role: "user", content: ""}];
+    ? [{ role: "user", content: userContent }]
+    : [userContent || { role: "user", content: "" }];
 
   // Get the last user message if chatHistory is an array
-  const lastUserMessage = chatHistory[chatHistory.length - 1]?.content || ""
+  const lastUserMessage = chatHistory[chatHistory.length - 1]?.content || "";
   chatHistory = chatHistory.slice(0, chatHistory.length - 1);
 
   // Prepare chat history in the format expected by the API
   const formattedHistory = Array.isArray(chatHistory)
-    ? chatHistory.map(msg => ({ role: msg.role, content: msg.content }))
+    ? chatHistory.map((msg) => ({ role: msg.role, content: msg.content }))
     : [];
 
   try {
     // Call the AI server API
-    const response = await fetch(`${process.env.AI_API_URL || 'http://localhost:8000'}/query`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: lastUserMessage,
-        chat_history: formattedHistory
-      }),
-    });
+    const response = await fetch(
+      `${process.env.AI_API_URL || "http://localhost:8000"}/query`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: lastUserMessage,
+          chat_history: formattedHistory,
+        }),
+      }
+    );
 
     if (!response.ok) {
-      console.error('Error from AI server:', response.statusText);
+      console.error("Error from AI server:", response.statusText);
       return "I'm sorry, I encountered an error while processing your request.";
     }
 
     const data = await response.json();
     return data.answer;
   } catch (error) {
-    console.error('Error calling AI service:', error);
+    console.error("Error calling AI service:", error);
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
     return "I'm sorry, I'm having trouble connecting to my knowledge base right now.";
   }
 }
